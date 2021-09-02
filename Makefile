@@ -81,6 +81,3 @@ deps-install: ## Install the dependencies
 deps-create: ## Create the dependencies
 	@if type pipreqs >/dev/null 2>&1 ; then pipreqs --use-local --force . ; \
 	 else echo "SKIPPED. Run '$(PIP) install pipreqs' first." >&2 ; fi
-
-feedback: ## Provide feedback
-	@open https://github.com/AlexanderWillner/python-boilerplate/issues

@@ -16,5 +16,4 @@ Some available commands:
  * code-count   - Count code lines (cloc).
  * deps-install - Install dependencies (see requirements.txt).
  * deps-update  - Update dependencies (via pur).
- * feedback     - Create a GitHub issue.
 ```
