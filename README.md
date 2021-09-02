@@ -1,5 +1,7 @@
 # Beancount Financial Statement
 
+[![Build Status](https://app.travis-ci.com/e7h4n/beancount-financial-statement.svg?branch=master)](https://app.travis-ci.com/e7h4n/beancount-financial-statement)
+
 ## How to contribute
 
 ```bash
