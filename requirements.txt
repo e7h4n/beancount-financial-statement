@@ -6,5 +6,5 @@ pylint==2.7.2
 flake8==3.9.0
 python-coveralls==2.9.3
 click==8.0.1
-pystache=0.5.4
-beancount=2.3.4
+pystache==0.5.4
+beancount==2.3.4
