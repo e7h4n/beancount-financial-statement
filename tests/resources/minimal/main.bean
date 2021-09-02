@@ -1,4 +1,7 @@
 1970-01-01 custom "finance-statement-option" "balance_sheet_layout" "layout"
+1970-01-01 custom "finance-statement-option" "working_currency" "USD"
+
+1970-01-01 open Income:Salary
 
 2019-01-01 open Assets:US:BofA
   balance_sheet_category: "Assets:Current assets:Cash and cash equivalent"
@@ -8,8 +11,8 @@
   balance_sheet_category: "Liabilities:Current liabilities:Credit card"
   equity_category: "Equity:Current equity:Current liabilities"
 
-2021-08-12 *
-    Equity:Opening-Balances -123,456,78 USD
+2021-07-12 *
+    Income:Salary -12,345,678 USD
     Assets:US:BofA
 
 2021-08-13 *

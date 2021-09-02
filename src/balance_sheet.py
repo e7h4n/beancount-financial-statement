@@ -1,12 +1,10 @@
 import datetime
-import click
 import calendar
 import pystache
 import os
 
-from functools import reduce
-from beancount.core.getters import get_accounts, get_account_components, get_account_open_close
-from beancount.core.amount import Amount
+from beancount.core.getters import get_account_open_close
+from beancount.core.number import D
 from beancount.core.convert import convert_amount
 from beancount.core.inventory import Inventory
 from beancount.core.prices import build_price_map
@@ -103,6 +101,7 @@ class Reporter:
     price_map = None
     year = None
     month = None
+    working_currency = None
 
     def __init__(self, year, month, file):
         self.year = year
@@ -119,14 +118,13 @@ class Reporter:
             if entry.type != 'finance-statement-option':
                 continue
 
-            if len(entry.values[0]) != 2:
+            if len(entry.values[0]) == 0:
                 continue
 
-            if entry.values[0].value != 'balance_sheet_layout':
-                continue
-
-            layout = entry.values[1].value
-            break
+            if entry.values[0].value == 'balance_sheet_layout' and len(entry.values[0]) == 2:
+                layout = entry.values[1].value
+            elif entry.values[0].value == 'working_currency' and len(entry.values[0]) == 2:
+                self.working_currency = entry.values[1].value
 
         if layout is None:
             raise Exception('Can\'t find balance_sheet_layout option, you should place a custom directive in the head of your ledger file')
@@ -215,7 +213,7 @@ class Reporter:
                         amount = report[line['category']]
                         if line['category'].lower().find('liabilities') != -1:
                             amount = -amount
-                        amount = self.cny(amount)
+                        amount = self.unify_currency(amount)
                     else:
                         amount = "0.00"
 
@@ -230,13 +228,18 @@ class Reporter:
                 "sections": sections,
             })
 
-    def cny(self, a):
-        amount = a.get_currency_units('CNY').number
-        amount = amount + convert_amount(a.get_currency_units('USD'), 'CNY', self.price_map).number
-        amount = amount + convert_amount(a.get_currency_units('HKD'), 'CNY', self.price_map).number
+    def unify_currency(self, a):
+        amount = D(0)
+        for currency in a.currency_pairs():
+            if currency[0] == self.working_currency:
+                amount = amount + a.get_currency_units(currency[0]).number
+            else:
+                amount = amount + convert_amount(a.get_currency_units(currency[0]), self.working_currency, self.price_map).number
+
         ret = "{:,}".format(amount.copy_abs().quantize(Decimal('.01')))
         if amount < 0:
             ret = "({0})".format(ret)
+
         return ret
 
     def __balance_report(self, year, month, category_map, equity_map):

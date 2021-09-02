@@ -5,6 +5,7 @@ sudo: false
 # command to install dependencies
 install:
   - pip install -r requirements.txt
+  - pip install beautifulsoup4
 # command to run tests
 script:
   - make test code-style code-lint
