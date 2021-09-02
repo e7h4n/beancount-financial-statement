@@ -1,0 +1,17 @@
+1970-01-01 custom "finance-statement-option" "balance_sheet_layout" "layout"
+
+2019-01-01 open Assets:US:BofA
+  balance_sheet_category: "Assets:Current assets:Cash and cash equivalent"
+  equity_category: "Equity:Current equity:Current assets"
+
+1980-05-12 open Liabilities:US:Chase:Slate                      USD
+  balance_sheet_category: "Liabilities:Current liabilities:Credit card"
+  equity_category: "Equity:Current equity:Current liabilities"
+
+2021-08-12 *
+    Equity:Opening-Balances -123,456,78 USD
+    Assets:US:BofA
+
+2021-08-13 *
+    Liabilities:US:Chase:Slate -1,234.56 USD
+    Assets:US:BofA
