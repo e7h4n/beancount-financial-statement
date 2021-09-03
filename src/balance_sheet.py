@@ -17,7 +17,7 @@ from decimal import Decimal
 def parse_report_layout(layout_file):
     with open(layout_file, 'r') as f:
         layout_content = f.readlines()
-    layout_content = [l.strip() for l in layout_content]
+    layout_content = [x.strip() for x in layout_content]
 
     report_layout = []
     unresolved_section = []

@@ -37,7 +37,7 @@ auto-style: ## Style the code
 	 else echo "SKIPPED. Run '$(PIP) install autopep8' first." >&2 ; fi
 
 code-style: ## Test the code style
-	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --max-line-length=80 $(SRC_CORE) ; \
+	@if type pycodestyle >/dev/null 2>&1 ; then pycodestyle --max-line-length=120 $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install pycodestyle' first." >&2 ; fi
 
 code-count: ## Count the lines of code
