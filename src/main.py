@@ -1,15 +1,20 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# pylint: disable=no-value-for-parameter
+"""命令行执行器"""
 import click
+from balance_sheet import Reporter
 
 
 @click.command()
-@click.option('--count', default=1, help='Number of greetings.')
-@click.option('--name', prompt='Your name',
-              help='The person to greet.')
-def main(count, name):
-    """Simple program that greets NAME for a total of COUNT times."""
-    for x in range(count):
-        click.echo('Hello %s!' % name)
+@click.option('--year', help='Year.')
+@click.option('--month', help='Month.')
+@click.option('--beancount', help='Beancount ledger file.')
+def main(year, month, beancount):
+    """命令行执行器."""
 
+    reporter = Reporter(int(year), int(month), beancount)
+    print(reporter.generate())
 
 if __name__ == '__main__':
     main()

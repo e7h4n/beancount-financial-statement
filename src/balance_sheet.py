@@ -1,8 +1,12 @@
+# pylint: disable=isinstance-second-argument-not-valid-type
+"""资产负债表生成器"""
+
 import datetime
 import calendar
-import pystache
 import os
-
+from datetime import timedelta
+from decimal import Decimal
+import pystache
 from beancount.core.getters import get_account_open_close
 from beancount.core.number import D
 from beancount.core.convert import convert_amount
@@ -10,17 +14,23 @@ from beancount.core.prices import build_price_map
 from beancount.core.data import Open, Custom
 from beancount.loader import load_file
 from beancount.query import query
-from datetime import timedelta
-from decimal import Decimal
 
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    import importlib_resources as pkg_resources
+
+from . import templates
 
 def parse_report_layout(layout_file):
-    with open(layout_file, 'r') as f:
-        layout_content = f.readlines()
+    """分析资产负债表布局文件，生成最终的完整布局"""
+
+    with open(layout_file, 'r') as f_p:
+        layout_content = f_p.readlines()
     layout_content = [x.strip() for x in layout_content]
 
     report_layout = []
-    unresolved_section = []
+    unresolved = []
     for line in layout_content:
         last_section = None
         for section in line.split(':'):
@@ -29,18 +39,19 @@ def parse_report_layout(layout_file):
             else:
                 last_section = last_section + ':' + section
 
-            same_context = len(
-                unresolved_section) > 0 and unresolved_section[-1]['category'].startswith(last_section)
+            same_context = len(unresolved) > 0 and \
+                unresolved[-1]['category'].startswith(last_section)
+
             if same_context:
                 continue
 
             first_unresolved = True
-            while len(unresolved_section) > 0:
-                last_unresolved_category = unresolved_section[-1]['category']
+            while len(unresolved) > 0:
+                last_unresolved_category = unresolved[-1]['category']
                 if last_section.startswith(last_unresolved_category):
                     break
 
-                stack_top_section = unresolved_section.pop()
+                stack_top_section = unresolved.pop()
                 if first_unresolved is True:
                     first_unresolved = False
                     stack_top_section['show_amount'] = True
@@ -56,11 +67,11 @@ def parse_report_layout(layout_file):
                 "show_amount": False,
                 "show_total": False,
             })
-            unresolved_section.append(report_layout[-1])
+            unresolved.append(report_layout[-1])
 
     first_unresolved = True
-    while len(unresolved_section) > 0:
-        stack_top_section = unresolved_section.pop()
+    while len(unresolved) > 0:
+        stack_top_section = unresolved.pop()
         if first_unresolved is True:
             first_unresolved = False
             stack_top_section['show_amount'] = True
@@ -75,6 +86,8 @@ def parse_report_layout(layout_file):
 
 
 def add_months(sourcedate, months):
+    """add month to an existed date"""
+
     month = sourcedate.month - 1 + months
     year = sourcedate.year + month // 12
     month = month % 12 + 1
@@ -83,6 +96,8 @@ def add_months(sourcedate, months):
 
 
 def sum_by_map(result_map, category, inventory):
+    """sum inventory by category"""
+
     last_token = None
     for token in category.split(':'):
         if last_token is not None:
@@ -96,7 +111,17 @@ def sum_by_map(result_map, category, inventory):
             result_map[last_token] = result_map[last_token] + inventory
 
 
+def render(periods, sections):
+    template = pkg_resources.read_text(templates, 'balance_sheet.mustache')
+
+    return pystache.render(template, {
+        "periods": periods,
+        "sections": sections,
+    })
+
+
 class Reporter:
+    """资产负债表生成类"""
 
     entries = None
     option_map = None
@@ -109,13 +134,13 @@ class Reporter:
     def __init__(self, year, month, file):
         self.year = year
         self.month = month
-        (entries, error, option_map) = load_file(file)
+        (entries, _, option_map) = load_file(file)
         self.entries = entries
         self.option_map = option_map
 
         layout = None
         for entry in entries:
-            if not isinstance(entry, Custom):
+            if isinstance(entry, Custom) is False:
                 continue
 
             if entry.type != 'finance-statement-option':
@@ -142,9 +167,62 @@ class Reporter:
     def generate(self):
         """Generate Balance Report"""
 
-        latest_month = datetime.datetime(self.year, self.month, 1)
-        reports = []
+        (category_map, equity_map, category_accounts_map) = self.__parse_category()
 
+        self.__check_layout(category_map, equity_map)
+
+        (periods, reports) = self.__generate_report_data(category_map, equity_map)
+
+        sections = self.__merge_data_and_layout(reports, category_accounts_map)
+
+        return render(periods, sections)
+
+    def unify_currency(self, inventory):
+        """统一转换货币"""
+
+        amount = D(0)
+        for currency in inventory.currency_pairs():
+            if currency[0] == self.working_currency:
+                amount = amount + \
+                    inventory.get_currency_units(currency[0]).number
+            else:
+                amount = amount + convert_amount(inventory.get_currency_units(
+                    currency[0]), self.working_currency, self.price_map).number
+
+        ret = "{:,}".format(amount.copy_abs().quantize(Decimal('.01')))
+        if amount < 0:
+            ret = "({0})".format(ret)
+
+        return ret
+
+    def __balance_report(self, year, month, category_map, equity_map):
+        close_on = add_months(datetime.datetime(year, month, 1), 1)
+
+        ret = query.run_query(self.entries, self.option_map,
+                              "balances at cost from  CLOSE ON {0} CLEAR".format(str(close_on)))
+
+        account_balance_map = {}
+        for balance in ret[1]:
+            account = balance[0]
+            inventory = balance[1]
+            if account not in category_map:
+                if account.startswith('Assets'):
+                    raise Exception(
+                        'Assets account "{}" doesn\'t have balance sheet field'.format(account))
+
+                if account.startswith('Liabilities'):
+                    raise Exception(
+                        'Liabilities account "{}" doesn\'t have balance sheet field'
+                        .format(account)
+                    )
+                continue
+
+            sum_by_map(account_balance_map, category_map[account], inventory)
+            sum_by_map(account_balance_map, equity_map[account], inventory)
+
+        return account_balance_map
+
+    def __parse_category(self):
         category_map = {}
         category_accounts_map = {}
         equity_map = {}
@@ -177,6 +255,9 @@ class Reporter:
             else:
                 category_accounts_map[category].append(open_account.account)
 
+        return (category_map, equity_map, category_accounts_map)
+
+    def __check_layout(self, category_map, equity_map):
         dissociated_categories = set(category_map.values())
         dissociated_categories.update(equity_map.values())
         dissociated_categories = dissociated_categories.difference(
@@ -184,8 +265,13 @@ class Reporter:
 
         if len(dissociated_categories) > 0:
             dissociated_categories = sorted(dissociated_categories)
-            raise Exception('Some dissociated categories not included in balance sheet layout file: "{}"'.format(
-                '", "'.join(dissociated_categories)))
+            raise Exception(
+                'Some dissociated categories not included in balance sheet layout file: "{}"'
+                .format('", "'.join(dissociated_categories))
+            )
+
+    def __generate_report_data(self, category_map, equity_map):
+        latest_month = datetime.datetime(self.year, self.month, 1)
 
         periods = []
         reports = []
@@ -197,6 +283,9 @@ class Reporter:
 
             periods.append(add_months(report_date, 1) + timedelta(days=-1))
 
+        return (periods, reports)
+
+    def __merge_data_and_layout(self, reports, category_accounts_map):
         sections = []
         for line in self.layout:
             section = {
@@ -230,50 +319,4 @@ class Reporter:
 
             sections.append(section)
 
-        template_path = os.path.join(os.path.dirname(
-            os.path.realpath(__file__)), '../resources/balance_sheet.mustache')
-        with open(template_path) as f:
-            return pystache.render(f.read(), {
-                "periods": periods,
-                "sections": sections,
-            })
-
-    def unify_currency(self, a):
-        amount = D(0)
-        for currency in a.currency_pairs():
-            if currency[0] == self.working_currency:
-                amount = amount + a.get_currency_units(currency[0]).number
-            else:
-                amount = amount + convert_amount(a.get_currency_units(
-                    currency[0]), self.working_currency, self.price_map).number
-
-        ret = "{:,}".format(amount.copy_abs().quantize(Decimal('.01')))
-        if amount < 0:
-            ret = "({0})".format(ret)
-
-        return ret
-
-    def __balance_report(self, year, month, category_map, equity_map):
-        close_on = add_months(datetime.datetime(year, month, 1), 1)
-
-        ret = query.run_query(self.entries, self.option_map,
-                              "balances at cost from  CLOSE ON {0} CLEAR".format(str(close_on)))
-
-        account_balance_map = {}
-        for balance in ret[1]:
-            account = balance[0]
-            inventory = balance[1]
-            if account not in category_map:
-                if account.startswith('Assets'):
-                    raise Exception(
-                        'Assets account "{}" doesn\'t have balance sheet field'.format(account))
-
-                if account.startswith('Liabilities'):
-                    raise Exception(
-                        'Liabilities account "{}" doesn\'t have balance sheet field'.format(account))
-                continue
-
-            sum_by_map(account_balance_map, category_map[account], inventory)
-            sum_by_map(account_balance_map, equity_map[account], inventory)
-
-        return account_balance_map
+        return sections

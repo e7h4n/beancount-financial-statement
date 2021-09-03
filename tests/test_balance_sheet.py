@@ -4,9 +4,8 @@
 """Test balance sheet statement"""
 
 import unittest
-import sys
-from src.balance_sheet import Reporter
 from bs4 import BeautifulSoup
+from src.balance_sheet import Reporter
 
 class MinimalLedger(unittest.TestCase):
     """Test Minimal ledger"""
