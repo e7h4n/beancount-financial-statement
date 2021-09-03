@@ -6,7 +6,6 @@ import os
 from beancount.core.getters import get_account_open_close
 from beancount.core.number import D
 from beancount.core.convert import convert_amount
-from beancount.core.inventory import Inventory
 from beancount.core.prices import build_price_map
 from beancount.core.data import Open, Custom
 from beancount.loader import load_file
@@ -30,7 +29,9 @@ def parse_report_layout(layout_file):
             else:
                 last_section = last_section + ':' + section
 
-            if len(unresolved_section) > 0 and unresolved_section[-1]['category'].startswith(last_section):
+            same_context = len(
+                unresolved_section) > 0 and unresolved_section[-1]['category'].startswith(last_section)
+            if same_context:
                 continue
 
             first_unresolved = True
@@ -72,12 +73,14 @@ def parse_report_layout(layout_file):
 
     return report_layout
 
+
 def add_months(sourcedate, months):
     month = sourcedate.month - 1 + months
     year = sourcedate.year + month // 12
     month = month % 12 + 1
-    day = min(sourcedate.day, calendar.monthrange(year,month)[1])
+    day = min(sourcedate.day, calendar.monthrange(year, month)[1])
     return datetime.date(year, month, day)
+
 
 def sum_by_map(result_map, category, inventory):
     last_token = None
@@ -127,7 +130,9 @@ class Reporter:
                 self.working_currency = entry.values[1].value
 
         if layout is None:
-            raise Exception('Can\'t find balance_sheet_layout option, you should place a custom directive in the head of your ledger file')
+            raise Exception(
+                'Can\'t find balance_sheet_layout option, ' +
+                ' you should place a custom directive in the head of your ledger file')
 
         layout = os.path.join(os.path.dirname(file), layout)
         self.layout = parse_report_layout(layout)
@@ -172,19 +177,22 @@ class Reporter:
             else:
                 category_accounts_map[category].append(open_account.account)
 
-        dissociated_categories = set(category_map.values());
+        dissociated_categories = set(category_map.values())
         dissociated_categories.update(equity_map.values())
-        dissociated_categories = dissociated_categories.difference([x['category'] for x in self.layout])
+        dissociated_categories = dissociated_categories.difference(
+            [x['category'] for x in self.layout])
 
         if len(dissociated_categories) > 0:
             dissociated_categories = sorted(dissociated_categories)
-            raise Exception('Some dissociated categories not included in balance sheet layout file: "{}"'.format('", "'.join(dissociated_categories)))
+            raise Exception('Some dissociated categories not included in balance sheet layout file: "{}"'.format(
+                '", "'.join(dissociated_categories)))
 
         periods = []
         reports = []
         for i in range(4):
             report_date = add_months(latest_month,  i - 3)
-            report = self.__balance_report(report_date.year, report_date.month, category_map, equity_map)
+            report = self.__balance_report(
+                report_date.year, report_date.month, category_map, equity_map)
             reports.append(report)
 
             periods.append(add_months(report_date, 1) + timedelta(days=-1))
@@ -197,7 +205,8 @@ class Reporter:
             }
 
             if line['category'] in category_accounts_map:
-                section['accounts'] = "\n".join(sorted(category_accounts_map[line['category']]))
+                section['accounts'] = "\n".join(
+                    sorted(category_accounts_map[line['category']]))
 
             if line['category'].count(':') == 0 and not line['show_total']:
                 section["category"] = line['category'].upper()
@@ -221,7 +230,8 @@ class Reporter:
 
             sections.append(section)
 
-        template_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../resources/balance_sheet.mustache')
+        template_path = os.path.join(os.path.dirname(
+            os.path.realpath(__file__)), '../resources/balance_sheet.mustache')
         with open(template_path) as f:
             return pystache.render(f.read(), {
                 "periods": periods,
@@ -234,7 +244,8 @@ class Reporter:
             if currency[0] == self.working_currency:
                 amount = amount + a.get_currency_units(currency[0]).number
             else:
-                amount = amount + convert_amount(a.get_currency_units(currency[0]), self.working_currency, self.price_map).number
+                amount = amount + convert_amount(a.get_currency_units(
+                    currency[0]), self.working_currency, self.price_map).number
 
         ret = "{:,}".format(amount.copy_abs().quantize(Decimal('.01')))
         if amount < 0:
@@ -245,9 +256,8 @@ class Reporter:
     def __balance_report(self, year, month, category_map, equity_map):
         close_on = add_months(datetime.datetime(year, month, 1), 1)
 
-        ret = query.run_query(self.entries, self.option_map, "balances at cost from  CLOSE ON {0} CLEAR".format(str(close_on)))
-
-        equity = Inventory()
+        ret = query.run_query(self.entries, self.option_map,
+                              "balances at cost from  CLOSE ON {0} CLEAR".format(str(close_on)))
 
         account_balance_map = {}
         for balance in ret[1]:
@@ -255,16 +265,15 @@ class Reporter:
             inventory = balance[1]
             if account not in category_map:
                 if account.startswith('Assets'):
-                    raise Exception('Assets account "{}" doesn\'t have balance sheet field'.format(account))
+                    raise Exception(
+                        'Assets account "{}" doesn\'t have balance sheet field'.format(account))
 
                 if account.startswith('Liabilities'):
-                    raise Exception('Liabilities account "{}" doesn\'t have balance sheet field', 'eggs'.format(account))
+                    raise Exception(
+                        'Liabilities account "{}" doesn\'t have balance sheet field'.format(account))
                 continue
 
             sum_by_map(account_balance_map, category_map[account], inventory)
             sum_by_map(account_balance_map, equity_map[account], inventory)
 
         return account_balance_map
-
-if __name__ == '__main__':
-    balance_report()

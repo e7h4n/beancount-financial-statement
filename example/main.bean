@@ -8,6 +8,8 @@ option "title" "Example Beancount file"
 option "operating_currency" "USD"
 
 
+1970-01-01 custom "finance-statement-option" "balance_sheet_layout" "layout"
+1970-01-01 custom "finance-statement-option" "working_currency" "USD"
 
 
 * Commodities
