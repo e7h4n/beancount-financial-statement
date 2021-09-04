@@ -23,7 +23,7 @@ open /tmp/report.html
 ## 安装
 
 ```bash
-pip install bean-financial-statement
+pip install beancount-financial-statement
 ```
 
 安装后可以通过命令 `bean-statement` 来使用。
