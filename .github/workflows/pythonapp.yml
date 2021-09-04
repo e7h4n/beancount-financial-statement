@@ -17,15 +17,18 @@ jobs:
       uses: actions/setup-node@v2.4.0
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install .[test]
-    - run: npm install -g pyright
+        python -m pip install install .[test]
     - name: Run lint
-      run: make code-style code-lint
-    - name: Test with pytest
-      run: pytest
+      run: |
+        npm install -g pyright
+        make code-style code-lint
     - name: Run test
       run: make test
+    - name: Build
+      if: startsWith(github.ref, 'refs/tags')
+      run: |
+        python -m pip install build --user
+        python -m build --sdist --wheel --outdir dist/ .
     - name: Publish a Python distribution to PyPI
       if: startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@release/v1
