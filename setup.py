@@ -33,7 +33,7 @@ setup(
         'Development Status :: 4 - Beta',
 
         'Intended Audience :: Financial and Insurance Industry',
-        'Topic :: Office/Business :: Financial :: Accounting'
+        'Topic :: Office/Business :: Financial :: Accounting',
 
         'License :: OSI Approved :: MIT License',
 
