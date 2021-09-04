@@ -24,7 +24,7 @@ from . import templates
 def parse_report_layout(layout_file):
     """分析资产负债表布局文件，生成最终的完整布局"""
 
-    with open(layout_file, 'r') as f_p:
+    with open(layout_file, 'r', encoding='utf-8') as f_p:
         layout_content = f_p.readlines()
     layout_content = [x.strip() for x in layout_content]
 
