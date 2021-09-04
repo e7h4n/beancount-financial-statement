@@ -6,7 +6,7 @@ https://github.com/pypa/sampleproject
 """
 
 import pathlib
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = pathlib.Path(__file__).parent.resolve()
 
@@ -49,12 +49,12 @@ setup(
 
     package_dir={'beancount-financial-statement': 'src'},
 
-    packages=['.'],
-
     python_requires='>=3.6, <4',
 
+    packages=find_packages(exclude=['experiments*']),
+
     package_data = {
-        'templates': ['src/templates/*'],
+        'beanstatement': ['templates/*.mustache'],
     },
 
     install_requires=[
@@ -79,7 +79,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'bean-statement=main:main',
+            'bean-statement=beanstatement.scripts.main:main',
         ],
     },
 

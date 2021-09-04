@@ -8,6 +8,26 @@
 
 ![Balance Sheet](/example/balance_sheet.png)
 
+可以 clone 这个仓库重现这个报告:
+
+```bash
+git clone https://github.com/e7h4n/beancount-financial-statement
+cd beancount-financial-statement
+python3 -m venv .
+. bin/activate
+pip3 install .
+bean-statement --year 2021 --month 8 --beancount example/main.bean > /tmp/report.html
+open /tmp/report.html
+```
+
+## 安装
+
+```bash
+pip install bean-financial-statement
+```
+
+安装后可以通过命令 `bean-statement` 来使用。
+
 ## 如何使用
 
 1. 创建一个额外的 layout.txt 文件来控制资产负债表中各个项目的顺序。
@@ -76,7 +96,9 @@ Layout 中的每一项，都可以在账本中通过 `balance_sheet_category` �
 
 4. 执行命令
 
-[正在开发，这里还缺一个好用的命令行 wrapper.]
+```bash
+bean-statement --year 2021 --month 8 --beancount YOUR_LEDGER_FILE_PATH
+```
 
 ## How to contribute
 
@@ -97,7 +119,7 @@ Some available commands:
 ## Todo
 
 - [x] 资产负债表
- - [ ] 易于使用的命令行界面
+ - [x] 易于使用的命令行界面
  - [ ] 更多的 Test Case
  - [ ] 完善 Pydoc
  - [ ] 更好的 Code Style
