@@ -15,7 +15,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 setup(
     name='beancount-financial-statement',
 
-    version='0.8.1',
+    version='0.8.2',
 
     description='A report generator for beancount financial statement.',
 

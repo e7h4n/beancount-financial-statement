@@ -110,7 +110,7 @@ def sum_by_map(result_map, category, inventory):
             result_map[last_token] = result_map[last_token] + inventory
 
 
-def render(periods, sections):
+def render(periods, sections, report_meta):
     """渲染模板"""
 
     template = pkg_resources.read_text(templates, 'balance_sheet.mustache')
@@ -118,6 +118,7 @@ def render(periods, sections):
     return pystache.render(template, {
         "periods": periods,
         "sections": sections,
+        "meta": report_meta,
     })
 
 
@@ -176,7 +177,9 @@ class Reporter:
 
         sections = self.__merge_data_and_layout(reports, category_accounts_map)
 
-        return render(periods, sections)
+        return render(periods, sections, {
+            "working_currency": self.working_currency,
+        })
 
     def unify_currency(self, inventory):
         """统一转换货币"""
