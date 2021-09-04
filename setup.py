@@ -47,9 +47,9 @@ setup(
 
     keywords='beancount, financial statement',
 
-    # package_dir={'': 'src'},
+    package_dir={'beancount-financial-statement': 'src'},
 
-    packages=['src', 'src.templates'],
+    packages=['.'],
 
     python_requires='>=3.6, <4',
 

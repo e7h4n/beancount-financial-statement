@@ -4,6 +4,7 @@
 import datetime
 import calendar
 import os
+import importlib.resources as pkg_resources
 from datetime import timedelta
 from decimal import Decimal
 import pystache
@@ -15,12 +16,8 @@ from beancount.core.data import Open, Custom
 from beancount.loader import load_file
 from beancount.query import query
 
-try:
-    import importlib.resources as pkg_resources
-except ImportError:
-    import importlib_resources as pkg_resources
-
 from . import templates
+
 
 def parse_report_layout(layout_file):
     """分析资产负债表布局文件，生成最终的完整布局"""
@@ -112,6 +109,8 @@ def sum_by_map(result_map, category, inventory):
 
 
 def render(periods, sections):
+    """渲染模板"""
+
     template = pkg_resources.read_text(templates, 'balance_sheet.mustache')
 
     return pystache.render(template, {
@@ -159,7 +158,7 @@ class Reporter:
                 'Can\'t find balance_sheet_layout option, ' +
                 ' you should place a custom directive in the head of your ledger file')
 
-        layout = os.path.join(os.path.dirname(file), layout)
+        layout = os.path.join(str(os.path.dirname(file)), layout)
         self.layout = parse_report_layout(layout)
 
         self.price_map = build_price_map(entries)
@@ -258,6 +257,8 @@ class Reporter:
         return (category_map, equity_map, category_accounts_map)
 
     def __check_layout(self, category_map, equity_map):
+        assert self.layout is not None
+
         dissociated_categories = set(category_map.values())
         dissociated_categories.update(equity_map.values())
         dissociated_categories = dissociated_categories.difference(
@@ -271,6 +272,9 @@ class Reporter:
             )
 
     def __generate_report_data(self, category_map, equity_map):
+        assert self.year is not None
+        assert self.month is not None
+
         latest_month = datetime.datetime(self.year, self.month, 1)
 
         periods = []
@@ -286,6 +290,8 @@ class Reporter:
         return (periods, reports)
 
     def __merge_data_and_layout(self, reports, category_accounts_map):
+        assert self.layout is not None
+
         sections = []
         for line in self.layout:
             section = {

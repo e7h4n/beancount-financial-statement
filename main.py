@@ -3,7 +3,7 @@
 # pylint: disable=no-value-for-parameter
 """命令行执行器"""
 import click
-from balance_sheet import Reporter
+from src.balance_sheet import Reporter
 
 
 @click.command()
@@ -15,6 +15,7 @@ def main(year, month, beancount):
 
     reporter = Reporter(int(year), int(month), beancount)
     print(reporter.generate())
+
 
 if __name__ == '__main__':
     main()
