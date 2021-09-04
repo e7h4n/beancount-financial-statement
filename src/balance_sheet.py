@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # pylint: disable=isinstance-second-argument-not-valid-type
 """资产负债表生成器"""
 
