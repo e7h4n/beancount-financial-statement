@@ -1,6 +1,8 @@
 # Beancount 财报
 
 [![Build Status](https://app.travis-ci.com/e7h4n/beancount-financial-statement.svg?branch=master)](https://app.travis-ci.com/e7h4n/beancount-financial-statement)
+[![PyPI version](https://badge.fury.io/py/beancount-financial-statement.svg)](https://badge.fury.io/py/beancount-financial-statement)
+[![Coverage Status](https://coveralls.io/repos/github/e7h4n/beancount-financial-statement/badge.svg?branch=master)](https://coveralls.io/github/e7h4n/beancount-financial-statement?branch=master)
 
 一个给个人用的财报工具，分析 beancount 账本，自动生成资产负债表。
 
