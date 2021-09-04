@@ -72,6 +72,8 @@ setup(
             'pyflakes',
             'pylint',
             'flake8',
+            'mypy',
+            'pytest',
             'python-coveralls',
             'beautifulsoup4'
         ],
