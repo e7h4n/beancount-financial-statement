@@ -104,20 +104,25 @@ Layout 中的每一项，都可以在账本中通过 `balance_sheet_category` �
 bean-statement --year 2021 --month 8 --beancount YOUR_LEDGER_FILE_PATH
 ```
 
-## How to contribute
+## 如何贡献代码
+
+这里有一些常用的 `make` 命令：
 
 ```bash
 $ make
 Some available commands:
- * run          - Run code.
  * test         - Run unit tests and test coverage.
- * doc          - Document code (pydoc).
- * clean        - Cleanup (e.g. pyc files).
  * code-style   - Check code style (pycodestyle).
  * code-lint    - Check code lints (pyflakes, pyline).
- * code-count   - Count code lines (cloc).
- * deps-install - Install dependencies (see requirements.txt).
- * deps-update  - Update dependencies (via pur).
+```
+
+可以通过 venv 在本地快速开始一个开发环境:
+```bash
+git clone https://github.com/e7h4n/beancount-financial-statement
+cd beancount-financial-statement
+python3 -m venv .
+. bin/activate
+pip install -e .
 ```
 
 ## Todo
