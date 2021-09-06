@@ -122,7 +122,7 @@ git clone https://github.com/e7h4n/beancount-financial-statement
 cd beancount-financial-statement
 python3 -m venv .
 . bin/activate
-pip install -e .
+pip install -e '.[test]'
 ```
 
 ## Todo
