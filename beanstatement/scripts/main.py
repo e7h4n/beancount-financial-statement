@@ -8,14 +8,14 @@ from beanstatement.balance_sheet import Reporter
 __version__ = '0.8.2'
 
 
-@click.command()
+@click.command(no_args_is_help=True)
 @click.option('--year', help='Year.', type=click.INT, required=True)
 @click.option('--month', help='Month.', type=click.INT, required=True)
 @click.option('--beancount', help='Beancount ledger file.',
               type=click.Path(exists=True), required=True)
 @click.version_option(__version__)
 def main(year, month, beancount):
-    """命令行执行器."""
+    """Beancount financial statement tool"""
 
     reporter = Reporter(year, month, beancount)
     print(reporter.generate())
