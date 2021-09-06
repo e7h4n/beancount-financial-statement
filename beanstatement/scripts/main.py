@@ -3,9 +3,8 @@
 # pylint: disable=no-value-for-parameter
 """命令行执行器"""
 import click
+from beanstatement import __version__
 from beanstatement.balance_sheet import Reporter
-
-__version__ = '0.8.2'
 
 
 @click.command(no_args_is_help=True)

@@ -5,11 +5,10 @@ https://packaging.python.org/guides/distributing-packages-using-setuptools/
 https://github.com/pypa/sampleproject
 """
 
-__version__ = '0.8.2'
 
 import pathlib
 from setuptools import setup, find_packages
-from beanstatement.scripts.main import __version__
+from beanstatement import __version__
 
 here = pathlib.Path(__file__).parent.resolve()
 
