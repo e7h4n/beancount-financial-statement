@@ -4,7 +4,7 @@
 """命令行执行器"""
 import click
 from beanstatement import __version__
-from beanstatement.balance_sheet import Reporter
+from beanstatement.reporter import Reporter
 
 
 @click.command(no_args_is_help=True)

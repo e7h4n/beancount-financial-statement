@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Balance Sheet</title>
+        <link href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+<style>
+                    body {
+                        font-family: menlo;
+                    }
+                    table {
+                        margin: 24px;
+                    }
+                    caption {
+                        text-align: center;
+                            font-size: 24px;
+                                font-weight: bold;
+                    }
+                    tbody td:not(:first-child) {
+                        text-align: right;
+                    }
+
+                    .date {
+                        text-align: center;
+                    }
+
+                    thead th:not(:first-child) {
+                        border-bottom: 1px solid #333;
+                    }
+                    .level-0,
+                    .level-1 {
+                        font-weight: bold;
+                    }
+                    .level-2 td {
+                        padding-left: 30px;
+                    }
+
+                    td, th {
+                        padding-top: 2px;
+                        padding-bottom: 2px;
+                    }
+
+                    .total td:not(:first-child) {
+                        border-top: 1px solid #333;
+                    }
+                    .level-0.total td:not(:first-child) {
+                        border-bottom: 3px double #333;
+                    }
+
+                    .level-0:not(:first-child):not(.total) td {
+                        padding-top: 24px;
+                    }
+</style>
+    </head>
+
+    <body>
+        <table cellspacing=0>
+        <caption>Balance Sheet</caption>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="4" id="table-title">As of ({{meta.working_currency}})</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    {{#periods}}<th class="date">{{year}}.{{month}}.{{day}}</th>{{/periods}}
+                </tr>
+            </thead>
+            <tbody>
+                {{#sections}}
+                    <tr class="{{class}}">
+                        <td {{#accounts}}title="{{.}}"{{/accounts}}>{{category}}</td>
+                        {{#amounts}}
+                            <td>{{.}}</td>
+                        {{/amounts}}
+                    </tr>
+                {{/sections}}
+            </tbody>
+        </table>
+    </body>
+</html>

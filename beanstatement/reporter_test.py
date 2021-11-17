@@ -5,7 +5,7 @@
 
 import unittest
 from bs4 import BeautifulSoup
-from beanstatement.balance_sheet import Reporter
+from beanstatement.reporter import Reporter
 
 
 class MinimalLedger(unittest.TestCase):

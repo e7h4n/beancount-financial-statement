@@ -16,7 +16,7 @@ help: ## Print help for each target
 
 test: ## Test the code
 	@type coverage >/dev/null 2>&1 || (echo "Run '$(PIP) install coverage' first." >&2 ; exit 1)
-	@coverage run --source . -m beanstatement.balance_sheet_test
+	@coverage run --source . -m beanstatement.reporter_test
 	@coverage report
 
 doc: ## Document the code
