@@ -1,15 +1,33 @@
 1970-01-01 custom "finance-statement-option" "balance_sheet_layout" "layout"
+1970-01-01 custom "finance-statement-option" "income_statement_layout" "income_layout"
 1970-01-01 custom "finance-statement-option" "working_currency" "USD"
+1970-01-01 custom "finance-statement-option" "fixed_expense_tag" "FIXED_EXPENSE"
+1970-01-01 custom "finance-statement-option" "fixed_expense_income_statement_category" "Expense:Fixed"
+1970-01-01 custom "finance-statement-option" "fixed_expense_revenue_category" "Revenue:Free cash flow:Fixed expense"
 
 1970-01-01 open Income:Salary
+    income_statement_category: "Income:Positive"
+    revenue_category: "Revenue:Free cash flow:Positive"
+
+1970-01-01 open Income:PnL
+    income_statement_category: "Income:Passive"
+    revenue_category: "Revenue:Passive"
+
+1970-01-01 open Expense:Interest
+    income_statement_category: "Expense:Passive"
+    revenue_category: "Revenue:Free cash flow:Passive expense"
+
+1970-01-01 open Expense:Meal
+    income_statement_category: "Expense:Positive"
+    revenue_category: "Revenue:Free cash flow:Expense"
 
 2019-01-01 open Assets:US:BofA
-  balance_sheet_category: "Assets:Current assets:Cash and cash equivalent"
-  equity_category: "Equity:Current equity:Current assets"
+    balance_sheet_category: "Assets:Current assets:Cash and cash equivalent"
+    equity_category: "Equity:Current equity:Current assets"
 
 1980-05-12 open Liabilities:US:Chase:Slate                      USD
-  balance_sheet_category: "Liabilities:Current liabilities:Credit card"
-  equity_category: "Equity:Current equity:Current liabilities"
+    balance_sheet_category: "Liabilities:Current liabilities:Credit card"
+    equity_category: "Equity:Current equity:Current liabilities"
 
 2021-07-12 *
     Income:Salary -12,345,678 USD
@@ -17,4 +35,15 @@
 
 2021-08-13 *
     Liabilities:US:Chase:Slate -1,234.56 USD
+    Assets:US:BofA
+
+2021-11-01 *
+    Income:Salary -100.00 USD
+    Income:PnL -200.00 USD
+    Expense:Interest 150.00 USD
+    Expense:Meal 200.00 USD
+    Assets:US:BofA
+
+2021-11-02 * #FIXED_EXPENSE
+    Expense:Meal 50.00 USD
     Assets:US:BofA
