@@ -62,7 +62,7 @@ setup(
     install_requires=[
         'logzero==1.7.0',
         'click==8.0.1',
-        'pystache==0.5.4',
+        'pystache==0.6.0',
         'beancount==2.3.4',
     ],
 
