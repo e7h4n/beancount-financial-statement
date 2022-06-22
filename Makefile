@@ -49,3 +49,7 @@ code-lint: ## Lint the code
 	 else echo "SKIPPED. Run 'npm install -f pyright' first." >&2 ; fi
 	@if type mypy >/dev/null 2>&1 ; then mypy --ignore-missing-imports $(SRC_CORE) ; \
 	 else echo "SKIPPED. Run '$(PIP) install mypy' first." >&2 ; fi
+
+upload:
+	python3 -m build
+	twine upload dist/*
