@@ -100,3 +100,5 @@ ENV/
 .mypy_cache/
 
 bin/
+
+pyvenv.cfg

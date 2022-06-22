@@ -63,7 +63,7 @@ setup(
         'logzero==1.7.0',
         'click==8.0.1',
         'pystache==0.6.0',
-        'beancount==2.3.4',
+        'beancount==2.3.5',
     ],
 
     extras_require={

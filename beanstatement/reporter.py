@@ -323,8 +323,8 @@ class Reporter:
 
         periods = []
         reports = []
-        for i in range(4):
-            report_date = add_months(latest_month, i - 3)
+        for i in range(12):
+            report_date = add_months(latest_month, i - 11)
             report = self.__balance_report(
                 report_date.year, report_date.month, category_map, equity_map
             )
