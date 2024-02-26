@@ -60,10 +60,10 @@ setup(
     },
 
     install_requires=[
-        'logzero==1.7.0',
-        'click==8.0.1',
-        'pystache==0.6.0',
-        'beancount==2.3.6',
+        'logzero>=1.7.0',
+        'click>=7,<9',
+        'pystache>=0.6.0',
+        'beancount>=2.3.6',
     ],
 
     extras_require={
